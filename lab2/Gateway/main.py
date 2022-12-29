@@ -1,7 +1,6 @@
 import flask
-
-
-
+from flask import request
+import requests
 
 
 class Server:
@@ -28,8 +27,10 @@ class Server:
     def get_flights(self):
         param_page = request.args.get("page", default = 0, type = int)
         param_size = request.args.get("size", default = 0, type = int)
-        url = "http://flight:" + self.Flights + "/api/v1/flights"
-        response = requests.get(url, params = {"page": page, "size": size})
+        url = "http://127.0.0.1:" + str(self.Flights) + "/api/v1/flights"
+        print(url)
+        print(param_page+10, param_size+100)
+        response = requests.get(url, params = {"page": param_page, "size": param_size})
         if response.status_code == 200:
             return response.json()
         return Response(status = 404)

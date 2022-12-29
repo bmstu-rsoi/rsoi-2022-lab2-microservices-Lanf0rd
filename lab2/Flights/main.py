@@ -1,6 +1,6 @@
+from flask import request
 import flask
 from database import Data_Base
-
 
 
 
@@ -18,6 +18,7 @@ class Server:
     def get_flights(self):
         param_page = request.args.get("page", default = 0, type = int)
         param_size = request.args.get("size", default = 0, type = int)
+        print(param_page+100, param_size+10)
         new_db = Data_Base()
         flights = new_db.get_flights(param_page, param_size)
         return flights
