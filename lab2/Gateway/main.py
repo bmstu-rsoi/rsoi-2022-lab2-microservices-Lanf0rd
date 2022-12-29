@@ -13,20 +13,26 @@ class Server:
         self.Bonuses = bonuses_port
         self.app = flask.Flask(__name__)
         
-        self.app.add_url_rule('/api/v1/flights', view_func = self.get_flights)
-        self.app.add_url_rule('/api/v1/tickets', view_func = self.get_tickets)
-        self.app.add_url_rule('/api/v1/tickets', view_func = self.post_tickets, methods = ['POST'])
-        self.app.add_url_rule('/api/v1/tickets/<ticketUid>', view_func = self.get_tickets_by_id)
-        self.app.add_url_rule('/api/v1/tickets/<ticketUid>', view_func = self.delete_tickets_by_id, methods = ['DELETE'])
-        self.app.add_url_rule('/api/v1/me', view_func = self.get_me)
-        self.app.add_url_rule('/api/v1/privilege', view_func = self.get_privelege)
+        self.app.add_url_rule("/api/v1/flights", view_func = self.get_flights)
+        self.app.add_url_rule("/api/v1/tickets", view_func = self.get_tickets)
+        self.app.add_url_rule("/api/v1/tickets", view_func = self.post_tickets, methods = ["POST"])
+        self.app.add_url_rule("/api/v1/tickets/<ticketUid>", view_func = self.get_tickets_by_id)
+        self.app.add_url_rule("/api/v1/tickets/<ticketUid>", view_func = self.delete_tickets_by_id, methods = ["DELETE"])
+        self.app.add_url_rule("/api/v1/me", view_func = self.get_me)
+        self.app.add_url_rule("/api/v1/privilege", view_func = self.get_privelege)
 
     def run_server(self):
         return self.app.run(host = self.host, port = self.port)
 
 
     def get_flights(self):
-        return "get flights"
+        param_page = request.args.get("page", default = 0, type = int)
+        param_size = request.args.get("size", default = 0, type = int)
+        url = "http://flight:" + self.Flights + "/api/v1/flights"
+        response = requests.get(url, params = {"page": page, "size": size})
+        if response.status_code == 200:
+            return response.json()
+        return Response(status = 404)
 
     def get_tickets(self):
         return "get tickets"
