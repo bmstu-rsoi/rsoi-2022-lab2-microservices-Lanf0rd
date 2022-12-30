@@ -64,7 +64,12 @@ class Server:
         return "Its my data"
 
     def get_privelege(self):
-        return "Its my prevelege"
+        client = request.headers.get("X-User-Name")
+        url = "http://bonus:" + str(self.Bonuses) + "/api/v1/privilege"
+        response = requests.get(url, headers={"X-User-Name": client})
+        if response.status_code == 200:
+            return response.json()
+        return Response(status = 404)
 
 
 

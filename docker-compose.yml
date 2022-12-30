@@ -35,6 +35,12 @@ services:
     ports:
       - "8070:8070"
 
+  bonus:
+    build: lab2/Bonuses/
+    container_name: bonus
+    restart: on-failure
+    ports:
+      - "8050:8050"
 
 volumes:
   db-data:
