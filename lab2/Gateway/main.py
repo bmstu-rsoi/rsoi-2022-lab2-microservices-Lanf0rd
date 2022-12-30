@@ -1,5 +1,5 @@
 import flask
-from flask import request
+from flask import request, Response
 import requests
 
 
@@ -11,7 +11,7 @@ class Server:
         self.Flights = flights_port
         self.Bonuses = bonuses_port
         self.app = flask.Flask(__name__)
-        
+
         self.app.add_url_rule("/api/v1/flights", view_func = self.get_flights)
         self.app.add_url_rule("/api/v1/tickets", view_func = self.get_tickets)
         self.app.add_url_rule("/api/v1/tickets", view_func = self.post_tickets, methods = ["POST"])
@@ -22,14 +22,11 @@ class Server:
 
     def run_server(self):
         return self.app.run(host = self.host, port = self.port)
-
-
+    
     def get_flights(self):
         param_page = request.args.get("page", default = 0, type = int)
         param_size = request.args.get("size", default = 0, type = int)
-        url = "http://127.0.0.1:" + str(self.Flights) + "/api/v1/flights"
-        print(url)
-        print(param_page+10, param_size+100)
+        url = "http://flight:" + str(self.Flights) + "/api/v1/flights"
         response = requests.get(url, params = {"page": param_page, "size": param_size})
         if response.status_code == 200:
             return response.json()
