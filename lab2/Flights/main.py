@@ -11,6 +11,9 @@ class Server:
         self.app = flask.Flask(__name__)
 
         self.app.add_url_rule("/api/v1/flights", view_func = self.get_flights)
+        self.app.add_url_rule("/api/v1/flight_by_number", view_func = self.get_flight_by_number)
+
+        
 
     def run_server(self):
         return self.app.run(host = self.host, port = self.port)
@@ -21,6 +24,12 @@ class Server:
         new_db = Data_Base()
         flights = new_db.get_flights(param_page, param_size)
         return flights
+
+    def get_flight_by_number(self):
+        param_flight_number = request.args.get("flight_number")
+        new_db = Data_Base()
+        flight = new_db.get_flight_by_number(param_flight_number)
+        return flight
         
 
 

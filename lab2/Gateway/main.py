@@ -33,7 +33,23 @@ class Server:
         return Response(status = 404)
 
     def get_tickets(self):
-        return "get tickets"
+        client = request.headers.get("X-User-Name")
+        url1 = "http://ticket:" + str(self.Tickets) + "/api/v1/tickets"
+        url2 = "http://flight:" + str(self.Flights) + "/api/v1/get_flight_by_number"
+        response_tickets = requests.get(url1, headers={"X-User-Name": client})
+        if response_tickets.status_code != 200:
+            return Response(status = 404)
+        
+        for ticket in response_tickets:
+            response_flight = requests.get(url2, params = {"flight_number": ticket["flightNumber"]})
+            if response_flight.status_code != 200:
+                return Response(status = 404)
+
+            ticket["fromAirport"] = response_flight["fromAirport"]
+            ticket["toAirport"] = response_flight["toAirport"]
+            ticket["date"] = response_flight["date"]
+            ticket["price"] = response_flight["price"]
+        return response_tickets.json()
 
     def post_tickets(self):
         return "post tickets"
@@ -54,7 +70,7 @@ class Server:
 
 if __name__ == "__main__":
 
-    server_host = '0.0.0.0'
+    server_host = "0.0.0.0"
     server_port = 8080
     tickets_port = 8070
     flights_port = 8060

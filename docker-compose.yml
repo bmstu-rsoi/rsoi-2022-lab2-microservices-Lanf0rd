@@ -27,6 +27,13 @@ services:
     restart: on-failure
     ports:
       - "8060:8060"
+      
+  ticket:
+    build: lab2/Tickets/
+    container_name: ticket
+    restart: on-failure
+    ports:
+      - "8070:8070"
 
 
 volumes:

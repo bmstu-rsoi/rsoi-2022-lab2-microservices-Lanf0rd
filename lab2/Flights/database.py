@@ -72,18 +72,47 @@ class Data_Base:
             response = {"page": page, "pageSize": size, "totalElements": len(flights), "items": []}
             for flight in flights:
                 items = dict()
-                items['flightNumber'] = flight[0]
-                items['fromAirport'] = flight[1] + ' ' + flight[2]
-                items['toAirport'] = flight[3] + ' ' + flight[4]
-                items['date'] = flight[5]
-                items['price'] = flight[6]
-                response['items'].append(items)            
+                items["flightNumber"] = flight[0]
+                items["fromAirport"] = flight[1] + ' ' + flight[2]
+                items["toAirport"] = flight[3] + ' ' + flight[4]
+                items["date"] = flight[5]
+                items["price"] = flight[6]
+                response["items"].append(items)            
         except:
             self.connection.rollback()
         cursor.close()
         self.connection.close()
         self.connection = False
         return response
+
+    def get_flight_by_number(self, flight_number):
+        if not(self.connection):
+            self.connect()
+        cursor = self.connection.cursor()
+        response = dict()
+        try:
+
+            sql_request = '''select flight_number, (select city from airport where from_airport_id = id) as from_city,
+                             (select name from airport where from_airport_id = id) as from_name,
+                             (select city from airport where to_airport_id = id) as to_city,
+                             (select name from airport where to_airport_id = id) as to_name,
+                             datetime, price from flight where flight_number = %s'''
+            params = (flight_number)
+            cursor.execute(sql_request, params)
+            flight = cursor.fetchall()
+
+            response["flightNumber"] = flight[0]
+            response["fromAirport"] = flight[1] + ' ' + flight[2]
+            response["toAirport"] = flight[3] + ' ' + flight[4]
+            response["date"] = flight[5]
+            response["price"] = flight[6]    
+        except:
+            self.connection.rollback()
+        cursor.close()
+        self.connection.close()
+        self.connection = False
+        return response
+        
 
 
 
