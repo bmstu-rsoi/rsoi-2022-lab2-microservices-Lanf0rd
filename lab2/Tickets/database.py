@@ -42,7 +42,7 @@ class Data_Base:
         cursor = self.connection.cursor()
         response = []
         try:
-            cursor.execute("select ticket_uid, flight_number, price, status from ticket where username = %s;", (client,))
+            cursor.execute("select ticket_uid, flight_number, status from ticket where username = %s;", (client,))
             tickets = cursor.fetchall()
 
             for ticket in tickets:
@@ -51,6 +51,26 @@ class Data_Base:
                 items["flightNumber"] = ticket[1]
                 items["status"] = ticket[2]
                 response.append(items)            
+        except:
+            self.connection.rollback()
+        cursor.close()
+        self.connection.close()
+        self.connection = False
+        return response
+
+    def get_ticket(self, client, ticketUid):
+        if not(self.connection):
+            self.connect()
+        cursor = self.connection.cursor()
+        response = False
+        try:
+            cursor.execute("select ticket_uid, flight_number, status from ticket where username = %s and ticket_uid = %s;", (client, ticketUid))
+            ticket = cursor.fetchall()
+            if ticket[0]:
+                response = dict()
+                response["ticketUid"] = ticket[0]
+                response["flightNumber"] = ticket[1]
+                response["status"] = ticket[2]    
         except:
             self.connection.rollback()
         cursor.close()

@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, Response
 import flask
 from database import Data_Base
 
@@ -12,6 +12,7 @@ class Server:
 
         self.app.add_url_rule("/manage/health", view_func = self.get_say_ok)
         self.app.add_url_rule("/api/v1/tickets", view_func = self.get_tickets)
+        self.app.add_url_rule("/api/v1/tickets/<ticketUid>", view_func = self.get_tickets_by_id)
 
     def run_server(self):
         return self.app.run(host = self.host, port = self.port)
@@ -23,6 +24,14 @@ class Server:
         new_db = Data_Base()
         tickets = new_db.get_tickets(client)
         return tickets
+
+    def get_tickets_by_id(self, ticketUid):
+        client = request.headers.get("X-User-Name")
+        new_db = Data_Base()
+        ticket = new_db.get_ticket(client, ticketUid)
+        if ticket:
+            return ticket
+        return Response(status = 404)
 
 
 
