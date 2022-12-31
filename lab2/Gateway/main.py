@@ -64,7 +64,10 @@ class Server:
         return "delete tickets by uid " + ticketUid
 
     def get_me(self):
-        return "Its my data"
+        response_tickets = self.get_tickets()
+        response_bonuses = self.get_privelege()
+        response_me = dict(tickets = response_tickets, privilege = response_bonuses)
+        return response_me
 
     def get_privelege(self):
         client = request.headers.get("X-User-Name")
