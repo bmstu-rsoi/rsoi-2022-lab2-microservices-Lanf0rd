@@ -104,6 +104,54 @@ class Data_Base:
         self.connection = False
         return
 
+    def buy_by_privilege(self, client, ticket_uid, price, datetime):
+        if not(self.connection):
+            self.connect()
+        cursor = self.connection.cursor()
+        response_privelege = False
+        try:
+            cursor.execute("select id, balance, status from privilege where username = %s;", (client,))
+            privilege_data = cursor.fetchall()
+            if price <= privilege_data[1]:
+                new_balance = privilege_data[1] - price
+                balance_diff = price
+            else:
+                new_balance = 0
+                balance_diff = privilege_data[1]
+            cursor.execute("update privilege set balance = %s where username = %s;", (new_balance, client))
+            cursor.execute("insert into privilege_history (privilege_id, ticket_uid, datetime, balance_diff, operation_type) values (%s, %s, %s, %s, %s)",
+                               (privilege_data[0], ticket_uid, datetime, balance_diff, "DEBIT_THE_ACCOUNT"))
+            response_privelege = dict(balance: new_balance, status: privilege_data[2])
+            self.connection.commit()
+        except:
+            self.connection.rollback()
+        cursor.close()
+        self.connection.close()
+        self.connection = False
+        return response_privelege
+
+    def add_privilege(self, client, ticket_uid, price, datetime):
+        if not(self.connection):
+            self.connect()
+        cursor = self.connection.cursor()
+        response_privelege = False
+        try:
+            cursor.execute("select id, balance, status from privilege where username = %s;", (client,))
+            privilege_data = cursor.fetchall()
+            balance_diff = price*0.1
+            new_balance = privilege_data[1] + balance_diff
+            cursor.execute("update privilege set balance = %s where username = %s;", (new_balance, client))
+            cursor.execute("insert into privilege_history (privilege_id, ticket_uid, datetime, balance_diff, operation_type) values (%s, %s, %s, %s, %s)",
+                               (privilege_data[0], ticket_uid, datetime, balance_diff, "FILL_IN_BALANCE"))
+            response_privelege = dict(balance: new_balance, status: privilege_data[2])
+            self.connection.commit()
+        except:
+            self.connection.rollback()
+        cursor.close()
+        self.connection.close()
+        self.connection = False
+        return response_privelege
+
 
 
 

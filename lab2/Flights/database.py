@@ -89,7 +89,7 @@ class Data_Base:
         if not(self.connection):
             self.connect()
         cursor = self.connection.cursor()
-        response = dict()
+        response = False
         try:
 
             sql_request = '''select flight_number, (select city from airport where from_airport_id = id) as from_city,
@@ -100,7 +100,7 @@ class Data_Base:
             params = (flight_number)
             cursor.execute(sql_request, params)
             flight = cursor.fetchall()
-
+            response = dict()
             response["flightNumber"] = flight[0]
             response["fromAirport"] = flight[1] + ' ' + flight[2]
             response["toAirport"] = flight[3] + ' ' + flight[4]

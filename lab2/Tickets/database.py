@@ -1,4 +1,5 @@
 import psycopg2
+import uuid
 
 
 class Data_Base:
@@ -93,6 +94,23 @@ class Data_Base:
         self.connection.close()
         self.connection = False
         return check
+
+    def create_new_ticket(self, client, flight_number, price):
+        if not(self.connection):
+            self.connect()
+        cursor = self.connection.cursor()
+        ticket_uid = False
+        try:
+            ticket_uid = str(uuid.uuid4())
+            cursor.execute("insert into ticket (ticket_uid, username, flight_number, price, status) values (%s, %s, %s, %s, %s)",
+                               (ticket_uid, client, flight_number, price, 'PAID'))
+            self.connection.commit()
+        except:
+            self.connection.rollback()
+        cursor.close()
+        self.connection.close()
+        self.connection = False
+        return ticket_uid
 
 
 

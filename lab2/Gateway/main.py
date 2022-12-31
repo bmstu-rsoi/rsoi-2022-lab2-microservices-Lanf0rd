@@ -44,7 +44,7 @@ class Server:
             return Response(status = 404)
         
         for ticket in response_tickets:
-            response_flight = requests.get(url2, params = {"flight_number": ticket["flightNumber"]})
+            response_flight = requests.get(url2, headers = {"flight_number": ticket["flightNumber"]})
             if response_flight.status_code != 200:
                 return Response(status = 404)
 
@@ -57,7 +57,78 @@ class Server:
     def post_tickets(self):
         client = request.headers.get("X-User-Name")
         buy_inf = request.json
+        url1 = "http://flight:" + str(self.Flights) + "/api/v1/get_flight_by_number"
+        url2 = "http://ticket:" + str(self.Tickets) + "/api/v1/ticket"
+        url3 = "http://bonus:" + str(self.Bonuses) + "/api/v1/buy_by_privilege"
+        url4 = "http://bonus:" + str(self.Bonuses) + "/api/v1/add_privilege"
+
+        ##Проверить, что рейс существует
+        response_flight = requests.get(url1, headers = {"flight_number": buy_inf["flightNumber"]})
+        if not(response_flight):
+            return Response(status = 404)
+        
+        ##Создать билет и его uid
+        ticket_uid = requests.post(url2, headers = {"X-User-Name": client, "flight_number": buy_inf["flightNumber"], "price": buy_inf["price"]})
+
+        paidByMoney = buy_inf["price"]
+        paidByBonuses = 0
+
+        if buy_inf["paidFromBalance"]:
+            ##Оплатить билет бонусами
+            response_privelege = requests.post(url3, headers = {"X-User-Name": client, "ticket_uid": ticket_uid, "price": buy_inf["price"], "datetime": response_flight["date"]})
+            paidByBonuses = response_privelege["paidByBonuses"]
+            paidByMoney -= paidByBonuses
+
+        else:
+            ##Зачислить бонусы
+            response_privelege = requests.post(url4, headers = {"X-User-Name": client, "ticket_uid": ticket_uid, "price": buy_inf["price"], "datetime": response_flight["date"]})
+
+        ##Создать ответ
+        response = dict()
+        response["ticketUid"] = ticket_uid
+        response["flightNumber"] = buy_inf["flightNumber"]
+        response["fromAirport"] = response_flight["fromAirport"]
+        response["toAirport"] = response_flight["toAirport"]
+        response["date"] = response_flight["date"]
+        response["price"] = response_flight["price"]
+        response["paidByMoney"] = paidByMoney
+        response["paidByBonuses"] = paidByBonuses
+        response["status"] = "PAID"
+        response["privilege"] = {"balance": response_privelege["balance"], "status": response_privelege["status"]}
+
+        return response
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
         return "post tickets"
+
+
+
+
+
+
+
+
+
+
 
     def get_tickets_by_id(self, ticketUid):
         client = request.headers.get("X-User-Name")
@@ -66,7 +137,7 @@ class Server:
         response_ticket = requests.get(url1, headers={"X-User-Name": client})
         if response_ticket.status_code != 200:
             return Response(status = 404)
-        response_flight = requests.get(url2, params = {"flight_number": response_ticket["flightNumber"]})
+        response_flight = requests.get(url2, headers = {"flight_number": response_ticket["flightNumber"]})
         if response_flight.status_code != 200:
             return Response(status = 404)
 

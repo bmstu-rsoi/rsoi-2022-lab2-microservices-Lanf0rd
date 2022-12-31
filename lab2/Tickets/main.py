@@ -14,6 +14,9 @@ class Server:
         self.app.add_url_rule("/api/v1/tickets", view_func = self.get_tickets)
         self.app.add_url_rule("/api/v1/tickets/<ticketUid>", view_func = self.get_tickets_by_id)
         self.app.add_url_rule("/api/v1/tickets/<ticketUid>", view_func = self.delete_tickets_by_id, methods = ["DELETE"])
+        self.app.add_url_rule("/api/v1/ticket", view_func = self.create_new_ticket, methods = ["POST"])
+
+        
 
     def run_server(self):
         return self.app.run(host = self.host, port = self.port)
@@ -40,6 +43,16 @@ class Server:
         check = new_db.delete_ticket(client, ticketUid)
         if check:
             return Response(status = 204)
+        return Response(status = 404)
+
+    def create_new_ticket(self):
+        client = request.headers.get("X-User-Name")
+        flight_number = request.headers.get("flight_number")
+        price = request.headers.get("price")
+        new_db = Data_Base()
+        ticket_uid = new_db.create_new_ticket(client, flight_number, price)
+        if ticket_uid:
+            return ticket_uid
         return Response(status = 404)
 
 

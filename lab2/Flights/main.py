@@ -29,9 +29,9 @@ class Server:
         return flights
 
     def get_flight_by_number(self):
-        param_flight_number = request.args.get("flight_number")
+        flight_number = request.headers.get("flight_number")
         new_db = Data_Base()
-        flight = new_db.get_flight_by_number(param_flight_number)
+        flight = new_db.get_flight_by_number(flight_number)
         return flight
         
 

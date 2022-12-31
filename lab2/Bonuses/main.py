@@ -13,6 +13,10 @@ class Server:
         self.app.add_url_rule("/manage/health", view_func = self.get_say_ok)
         self.app.add_url_rule("/api/v1/privilege", view_func = self.get_privilege)
         self.app.add_url_rule("/api/v1/privilege/<ticketUid>", view_func = self.rollback_privilege, methods = ["DELETE"])
+        self.app.add_url_rule("/api/v1/buy_by_privilege", view_func = self.buy_by_privilege, methods = ["POST"])
+        self.app.add_url_rule("/api/v1/add_privilege", view_func = self.buy_by_privilege, methods = ["POST"])
+
+        
 
         
     def run_server(self):
@@ -31,6 +35,28 @@ class Server:
         new_db = Data_Base()
         new_db.rollback_privilege(client, ticketUid)
         return Response(status = 204)
+
+    def buy_by_privilege(self):
+        client = request.headers.get("X-User-Name")
+        ticket_uid = request.headers.get("ticket_uid")
+        price = request.headers.get("price")
+        datetime = request.headers.get("datetime")
+        new_db = Data_Base()
+        response_privelege = new_db.buy_by_privilege(client, ticket_uid, price, datetime)
+        if response_privelege:
+            return response_privelege
+        return Response(status = 404)
+
+    def add_privilege(self):
+        client = request.headers.get("X-User-Name")
+        ticket_uid = request.headers.get("ticket_uid")
+        price = request.headers.get("price")
+        datetime = request.headers.get("datetime")
+        new_db = Data_Base()
+        response_privelege = new_db.add_privilege(client, ticket_uid, price, datetime)
+        if response_privelege:
+            return response_privelege
+        return Response(status = 404)
 
 
 
