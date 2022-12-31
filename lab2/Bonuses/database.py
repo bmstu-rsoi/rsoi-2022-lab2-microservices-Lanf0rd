@@ -121,7 +121,7 @@ class Data_Base:
             cursor.execute("update privilege set balance = %s where username = %s;", (new_balance, client))
             cursor.execute("insert into privilege_history (privilege_id, ticket_uid, datetime, balance_diff, operation_type) values (%s, %s, %s, %s, %s)",
                                (privilege_data[0], ticket_uid, datetime, balance_diff, "DEBIT_THE_ACCOUNT"))
-            response_privelege = dict(balance: new_balance, status: privilege_data[2])
+            response_privelege = dict(balance = new_balance, status = privilege_data[2])
             self.connection.commit()
         except:
             self.connection.rollback()
@@ -143,7 +143,7 @@ class Data_Base:
             cursor.execute("update privilege set balance = %s where username = %s;", (new_balance, client))
             cursor.execute("insert into privilege_history (privilege_id, ticket_uid, datetime, balance_diff, operation_type) values (%s, %s, %s, %s, %s)",
                                (privilege_data[0], ticket_uid, datetime, balance_diff, "FILL_IN_BALANCE"))
-            response_privelege = dict(balance: new_balance, status: privilege_data[2])
+            response_privelege = dict(balance = new_balance, status = privilege_data[2])
             self.connection.commit()
         except:
             self.connection.rollback()
