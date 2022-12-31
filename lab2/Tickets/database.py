@@ -78,6 +78,22 @@ class Data_Base:
         self.connection = False
         return response
 
+    def delete_ticket(self, client, ticketUid):
+        if not(self.connection):
+            self.connect()
+        cursor = self.connection.cursor()
+        check = False
+        try:
+            cursor.execute("update ticket set status = 'CANCELED' where username = %s and ticket_uid = %s;", (client, ticketUid))
+            self.connection.commit()
+            check = True
+        except:
+            self.connection.rollback()
+        cursor.close()
+        self.connection.close()
+        self.connection = False
+        return check
+
 
 
 

@@ -13,6 +13,7 @@ class Server:
         self.app.add_url_rule("/manage/health", view_func = self.get_say_ok)
         self.app.add_url_rule("/api/v1/tickets", view_func = self.get_tickets)
         self.app.add_url_rule("/api/v1/tickets/<ticketUid>", view_func = self.get_tickets_by_id)
+        self.app.add_url_rule("/api/v1/tickets/<ticketUid>", view_func = self.delete_tickets_by_id, methods = ["DELETE"])
 
     def run_server(self):
         return self.app.run(host = self.host, port = self.port)
@@ -31,6 +32,14 @@ class Server:
         ticket = new_db.get_ticket(client, ticketUid)
         if ticket:
             return ticket
+        return Response(status = 404)
+
+    def delete_tickets_by_id(self, ticketUid):
+        client = request.headers.get("X-User-Name")
+        new_db = Data_Base()
+        check = new_db.delete_ticket(client, ticketUid)
+        if check:
+            return Response(status = 204)
         return Response(status = 404)
 
 

@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, Response
 import flask
 from database import Data_Base
 
@@ -12,6 +12,7 @@ class Server:
 
         self.app.add_url_rule("/manage/health", view_func = self.get_say_ok)
         self.app.add_url_rule("/api/v1/privilege", view_func = self.get_privilege)
+        self.app.add_url_rule("/api/v1/privilege/<ticketUid>", view_func = self.rollback_privilege, methods = ["DELETE"])
 
         
     def run_server(self):
@@ -24,6 +25,12 @@ class Server:
         new_db = Data_Base()
         privilege = new_db.get_privilege(client)
         return privilege
+
+    def rollback_privilege(self, ticketUid):
+        client = request.headers.get("X-User-Name")
+        new_db = Data_Base()
+        new_db.rollback_privilege(client, ticketUid)
+        return Response(status = 204)
 
 
 

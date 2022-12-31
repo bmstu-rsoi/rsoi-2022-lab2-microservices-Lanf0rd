@@ -55,6 +55,8 @@ class Server:
         return response_tickets.json()
 
     def post_tickets(self):
+        client = request.headers.get("X-User-Name")
+        buy_inf = request.json
         return "post tickets"
 
     def get_tickets_by_id(self, ticketUid):
@@ -74,13 +76,17 @@ class Server:
         response_ticket["price"] = response_flight["price"]
         return response_tickets.json()
 
-
-
-
-
-
     def delete_tickets_by_id(self, ticketUid):
-        return "delete tickets by uid " + ticketUid
+        client = request.headers.get("X-User-Name")
+        url1 = "http://ticket:" + str(self.Tickets) + "/api/v1/tickets/" + ticketUid
+        url2 = "http://bonus:" + str(self.Bonuses) + "/api/v1/privilege/" + ticketUid
+        response_delete = requests.delete(url1, headers={"X-User-Name": client})
+        if response_delete.status_code != 204:
+            return Response(status = 404)
+        response_delete = requests.delete(url2, headers={"X-User-Name": client})
+        if response_delete.status_code != 204:
+            return Response(status = 404)
+        return Response(status = 204)
 
     def get_me(self):
         response_tickets = self.get_tickets()
