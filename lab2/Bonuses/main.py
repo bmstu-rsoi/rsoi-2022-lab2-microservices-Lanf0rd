@@ -28,6 +28,8 @@ class Server:
         client = request.headers.get("X-User-Name")
         new_db = Data_Base()
         privilege = new_db.get_privilege(client)
+        if not(privilege):
+            return Response(status = 404)
         return privilege
 
     def rollback_privilege(self, ticketUid):

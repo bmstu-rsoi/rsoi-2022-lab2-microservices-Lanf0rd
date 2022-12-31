@@ -39,20 +39,15 @@ class Server:
         client = request.headers.get("X-User-Name")
         url1 = "http://ticket:" + str(self.Tickets) + "/api/v1/tickets"
         url2 = "http://flight:" + str(self.Flights) + "/api/v1/get_flight_by_number"
-        response_tickets = requests.get(url1, headers={"X-User-Name": client})
-        if response_tickets.status_code != 200:
-            return Response(status = 404)
+        response_tickets = requests.get(url1, headers={"X-User-Name": client}).json()
         
         for ticket in response_tickets:
-            response_flight = requests.get(url2, headers = {"flight_number": ticket["flightNumber"]})
-            if response_flight.status_code != 200:
-                return Response(status = 404)
-
+            response_flight = requests.get(url2, headers = {"flight_number": ticket["flightNumber"]}).json()
             ticket["fromAirport"] = response_flight["fromAirport"]
             ticket["toAirport"] = response_flight["toAirport"]
             ticket["date"] = response_flight["date"]
             ticket["price"] = response_flight["price"]
-        return response_tickets.json()
+        return response_tickets
 
     def post_tickets(self):
         client = request.headers.get("X-User-Name")
@@ -117,13 +112,6 @@ class Server:
 
 
 
-        
-        return "post tickets"
-
-
-
-
-
 
 
 
@@ -138,9 +126,7 @@ class Server:
         if response_ticket.status_code != 200:
             return Response(status = 404)
         response_flight = requests.get(url2, headers = {"flight_number": response_ticket["flightNumber"]})
-        if response_flight.status_code != 200:
-            return Response(status = 404)
-
+        
         response_ticket["fromAirport"] = response_flight["fromAirport"]
         response_ticket["toAirport"] = response_flight["toAirport"]
         response_ticket["date"] = response_flight["date"]
