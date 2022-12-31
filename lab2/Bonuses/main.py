@@ -10,11 +10,14 @@ class Server:
         self.port = port
         self.app = flask.Flask(__name__)
 
+        self.app.add_url_rule("/manage/health", view_func = self.get_say_ok)
         self.app.add_url_rule("/api/v1/privilege", view_func = self.get_privilege)
 
         
     def run_server(self):
         return self.app.run(host = self.host, port = self.port)
+    def get_say_ok(self):
+        return "OK"
         
     def get_privilege(self):
         client = request.headers.get("X-User-Name")

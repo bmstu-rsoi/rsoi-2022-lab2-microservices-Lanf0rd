@@ -12,6 +12,7 @@ class Server:
         self.Bonuses = bonuses_port
         self.app = flask.Flask(__name__)
 
+        self.app.add_url_rule("/manage/health", view_func = self.get_say_ok)
         self.app.add_url_rule("/api/v1/flights", view_func = self.get_flights)
         self.app.add_url_rule("/api/v1/tickets", view_func = self.get_tickets)
         self.app.add_url_rule("/api/v1/tickets", view_func = self.post_tickets, methods = ["POST"])
@@ -22,6 +23,8 @@ class Server:
 
     def run_server(self):
         return self.app.run(host = self.host, port = self.port)
+    def get_say_ok(self):
+        return "OK"
     
     def get_flights(self):
         param_page = request.args.get("page", default = 0, type = int)
