@@ -1,6 +1,5 @@
 import psycopg2
 
-
 class Data_Base:
     def __init__(self):
         self.connection = False
@@ -91,15 +90,14 @@ class Data_Base:
         cursor = self.connection.cursor()
         response = False
         try:
-
             sql_request = '''select flight_number, (select city from airport where from_airport_id = id) as from_city,
                              (select name from airport where from_airport_id = id) as from_name,
                              (select city from airport where to_airport_id = id) as to_city,
                              (select name from airport where to_airport_id = id) as to_name,
                              datetime, price from flight where flight_number = %s'''
-            params = (flight_number)
+            params = (flight_number,)
             cursor.execute(sql_request, params)
-            flight = cursor.fetchall()
+            flight = cursor.fetchall()[0]
             response = dict()
             response["flightNumber"] = flight[0]
             response["fromAirport"] = flight[1] + ' ' + flight[2]
@@ -112,9 +110,38 @@ class Data_Base:
         self.connection.close()
         self.connection = False
         return response
+
+    def drop_tables(self):
+        if not(self.connection):
+            self.connect()
+        cursor = self.connection.cursor()
+        cursor.execute("drop table flight;")
+        cursor.execute("drop table airport;")
+        self.connection.commit()
+        cursor.close()
+        self.connection.close()
+        self.connection = False
+
+    def get_tables_data(self):
+        if not(self.connection):
+            self.connect()
+        cursor = self.connection.cursor()
+        cursor.execute("select * from airport;")
+        airports = cursor.fetchall()
+        cursor.execute("select * from flight;")
+        flights = cursor.fetchall()
+        print('\n', airports, '\n')
+        print('\n', flights, '\n')
+        cursor.close()
+        self.connection.close()
+        self.connection = False
         
 
-
+'''
+new_tab = Data_Base()
+new_tab.get_tables_data()
+new_tab.drop_tables()
+'''
 
 
 

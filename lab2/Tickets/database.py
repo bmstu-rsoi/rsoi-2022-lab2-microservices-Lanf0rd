@@ -41,10 +41,11 @@ class Data_Base:
         if not(self.connection):
             self.connect()
         cursor = self.connection.cursor()
-        response = []
+        response = False
         try:
             cursor.execute("select ticket_uid, flight_number, status from ticket where username = %s;", (client,))
             tickets = cursor.fetchall()
+            response = []
 
             for ticket in tickets:
                 items = dict()
@@ -66,7 +67,7 @@ class Data_Base:
         response = False
         try:
             cursor.execute("select ticket_uid, flight_number, status from ticket where username = %s and ticket_uid = %s;", (client, ticketUid))
-            ticket = cursor.fetchall()
+            ticket = cursor.fetchall()[0]
             if ticket[0]:
                 response = dict()
                 response["ticketUid"] = ticket[0]
@@ -112,7 +113,32 @@ class Data_Base:
         self.connection = False
         return ticket_uid
 
+    def drop_tables(self):
+        if not(self.connection):
+            self.connect()
+        cursor = self.connection.cursor()
+        cursor.execute("drop table ticket;")
+        self.connection.commit()
+        cursor.close()
+        self.connection.close()
+        self.connection = False
 
+    def get_tables_data(self):
+        if not(self.connection):
+            self.connect()
+        cursor = self.connection.cursor()
+        cursor.execute("select * from ticket;")
+        tickets = cursor.fetchall()
+        print('\n', tickets, '\n')
+        cursor.close()
+        self.connection.close()
+        self.connection = False
+
+'''
+new_tab = Data_Base()
+new_tab.get_tables_data()
+new_tab.drop_tables()
+'''
 
 
 

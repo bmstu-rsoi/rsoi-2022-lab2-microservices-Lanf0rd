@@ -7,11 +7,12 @@ class Data_Base:
         self.create_tables()
 
     def connect(self):
+        
         self.connection = psycopg2.connect(dbname = "postgres",
                                            user = "program",
                                            password = "test",
                                            host = "postgres")
-
+                                           
     def create_tables(self):
         if not(self.connection):
             self.connect()
@@ -28,7 +29,7 @@ class Data_Base:
 
             cursor.execute(sql_request)
             cursor.execute("insert into privilege (username, status, balance) values (%s, %s, %s)",
-                               ("UserName", "GOLD", 1500))
+                               ("Test Max", "GOLD", 1500))
             
             sql_request = '''CREATE TABLE privilege_history
                              (
@@ -57,8 +58,7 @@ class Data_Base:
         response = False
         try:
             cursor.execute("select balance, status, id from privilege where username = %s;", (client,))
-            client_data = cursor.fetchall()
-
+            client_data = cursor.fetchall()[0]
             response = {"balance": client_data[0], "status": client_data[1], "history": []}
             cursor.execute("select datetime, ticket_uid, balance_diff, operation_type from privilege_history where privilege_id = %s;", (client_data[2],))
             client_bonuses = cursor.fetchall()
@@ -83,9 +83,9 @@ class Data_Base:
         cursor = self.connection.cursor()
         try:
             cursor.execute("select id, balance from privilege where username = %s;", (client,))
-            privilege_data = cursor.fetchall()
+            privilege_data = cursor.fetchall()[0]
             cursor.execute("select datetime, balance_diff, operation_type from privilege_history where privilege_id = %s;", (privilege_data[0],))
-            history_data = cursor.fetchall()
+            history_data = cursor.fetchall()[0]
             if history_data[2] == 'FILL_IN_BALANCE':
                 new_balance = max(privilege_data[1] - history_data[1], 0)
                 cursor.execute("update privilege set balance = %s where username = %s;", (new_balance, client))
@@ -111,7 +111,7 @@ class Data_Base:
         response_privelege = False
         try:
             cursor.execute("select id, balance, status from privilege where username = %s;", (client,))
-            privilege_data = cursor.fetchall()
+            privilege_data = cursor.fetchall()[0]
             if price <= privilege_data[1]:
                 new_balance = privilege_data[1] - price
                 balance_diff = price
@@ -137,7 +137,7 @@ class Data_Base:
         response_privelege = False
         try:
             cursor.execute("select id, balance, status from privilege where username = %s;", (client,))
-            privilege_data = cursor.fetchall()
+            privilege_data = cursor.fetchall()[0]
             balance_diff = price*0.1
             new_balance = privilege_data[1] + balance_diff
             cursor.execute("update privilege set balance = %s where username = %s;", (new_balance, client))
@@ -152,7 +152,34 @@ class Data_Base:
         self.connection = False
         return response_privelege
 
+    def drop_tables(self):
+        if not(self.connection):
+            self.connect()
+        cursor = self.connection.cursor()
+        cursor.execute("drop table privilege_history;")
+        cursor.execute("drop table privilege;")
+        self.connection.commit()
+        cursor.close()
+        self.connection.close()
+        self.connection = False
+
+    def get_tables_data(self):
+        if not(self.connection):
+            self.connect()
+        cursor = self.connection.cursor()
+        cursor.execute("select * from privilege;")
+        airports = cursor.fetchall()
+        cursor.execute("select * from privilege_history;")
+        flights = cursor.fetchall()
+        print('\n', airports, '\n')
+        print('\n', flights, '\n')
+        cursor.close()
+        self.connection.close()
+        self.connection = False
 
 
-
-
+'''
+new_tab = Data_Base()
+new_tab.get_tables_data()
+new_tab.drop_tables()
+'''
