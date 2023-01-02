@@ -1,5 +1,6 @@
 import psycopg2
 
+
 class Data_Base:
     def __init__(self):
         self.connection = False
@@ -10,6 +11,7 @@ class Data_Base:
                                            user = "program",
                                            password = "test",
                                            host = "postgres")
+
 
     def create_tables(self):
         if not(self.connection):
@@ -90,6 +92,7 @@ class Data_Base:
         cursor = self.connection.cursor()
         response = False
         try:
+
             sql_request = '''select flight_number, (select city from airport where from_airport_id = id) as from_city,
                              (select name from airport where from_airport_id = id) as from_name,
                              (select city from airport where to_airport_id = id) as to_city,

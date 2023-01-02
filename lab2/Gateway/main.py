@@ -29,15 +29,17 @@ class Server:
         param_page = request.args.get("page", default = 0, type = int)
         param_size = request.args.get("size", default = 0, type = int)
         url = "http://flight:" + str(self.Flights) + "/api/v1/flights"
+
         response = requests.get(url, params = {"page": param_page, "size": param_size})
         if response.status_code != 200:
             return Response(status = 404)
         return response.json()
-
+        
     def get_tickets(self):
         client = request.headers.get("X-User-Name")
         url1 = "http://ticket:" + str(self.Tickets) + "/api/v1/tickets"
-        url2 = "http://flight:" + str(self.Flights) + "/api/v1/get_flight_by_number"
+        url2 = "http://flight:" + str(self.Flights) + "/api/v1/flight_by_number"
+
         response_tickets = requests.get(url1, headers={"X-User-Name": client})
         if response_tickets.status_code != 200:
             return Response(status = 404)
@@ -57,7 +59,7 @@ class Server:
     def post_tickets(self):
         client = request.headers.get("X-User-Name")
         buy_inf = request.json
-        url1 = "http://flight:" + str(self.Flights) + "/api/v1/get_flight_by_number"
+        url1 = "http://flight:" + str(self.Flights) + "/api/v1/flight_by_number"
         url2 = "http://ticket:" + str(self.Tickets) + "/api/v1/ticket"
         url3 = "http://bonus:" + str(self.Bonuses) + "/api/v1/buy_by_privilege"
         url4 = "http://bonus:" + str(self.Bonuses) + "/api/v1/add_privilege"
@@ -92,23 +94,21 @@ class Server:
         response["paidByBonuses"] = paidByBonuses
         response["status"] = "PAID"
         response["privilege"] = {"balance": response_privelege["balance"], "status": response_privelege["status"]}
-
         return response
-
-        
-
-
 
     def get_tickets_by_id(self, ticketUid):
         client = request.headers.get("X-User-Name")
         url1 = "http://ticket:" + str(self.Tickets) + "/api/v1/tickets/" + ticketUid
-        url2 = "http://flight:" + str(self.Flights) + "/api/v1/get_flight_by_number"
+        url2 = "http://flight:" + str(self.Flights) + "/api/v1/flight_by_number"
 
         response_ticket = requests.get(url1, headers={"X-User-Name": client})
         if response_ticket.status_code != 200:
             return Response(status = 404)
         response_ticket = response_ticket.json()
+
         response_flight = requests.get(url2, headers = {"flight_number": response_ticket["flightNumber"]})
+        if response_flight.status_code != 200:
+            return Response(status = 404)
         response_flight = response_flight.json()
         
         response_ticket["fromAirport"] = response_flight["fromAirport"]
@@ -139,7 +139,7 @@ class Server:
     def get_privelege(self):
         client = request.headers.get("X-User-Name")
         url = "http://bonus:" + str(self.Bonuses) + "/api/v1/privilege"
-
+        
         response = requests.get(url, headers={"X-User-Name": client})
         if response.status_code == 200:
             return response.json()

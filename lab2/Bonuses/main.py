@@ -13,7 +13,7 @@ class Server:
         self.app.add_url_rule("/api/v1/privilege/<ticketUid>", view_func = self.rollback_privilege, methods = ['DELETE'])
         self.app.add_url_rule("/api/v1/buy_by_privilege", view_func = self.buy_by_privilege, methods = ['POST'])
         self.app.add_url_rule("/api/v1/add_privilege", view_func = self.add_privilege, methods = ['POST'])
-
+        
     def run_server(self):
         return self.app.run(host = self.host, port = self.port)
     def get_say_ok(self):

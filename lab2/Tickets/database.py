@@ -13,6 +13,8 @@ class Data_Base:
                                            password = "test",
                                            host = "postgres")
 
+
+
     def create_tables(self):
         if not(self.connection):
             self.connect()
